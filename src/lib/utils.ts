@@ -19,7 +19,7 @@ export const calculateHarvestDate = (
   plantedDate: number,
   harvestTime: number
 ) => {
-  const computedValue = plantedDate + harvestTime - 1; // planted date is counted as 1 day
+  const computedValue = plantedDate + harvestTime; // planted date is not counted as 1 day
   if (computedValue <= 30){
     return computedValue
   }
