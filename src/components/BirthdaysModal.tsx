@@ -13,7 +13,7 @@ export default function BirthdayModal({
         className="absolute top-0 left-0 bg-black opacity-80 w-full h-full"
         onClick={() => setIsShown(false)}
       ></div>
-      <div className="w-full overflow-y-scroll h-[calc(100vh-80px-80px)] mx-16 bg-white z-10 mt-20 flex flex-col p-4">
+      <div className="w-full overflow-y-scroll h-[calc(100vh-80px-80px)] mx-4 bg-white z-10 mt-20 flex flex-col p-4">
         <div className="h-fit flex gap-4 flex-col">
           {/* birthday */}
 

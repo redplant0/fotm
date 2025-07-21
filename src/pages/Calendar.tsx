@@ -127,7 +127,10 @@ function CalendarPage() {
                   <div className="w-full flex flex-col overflow-y-scroll gap-1">
                     {day.crops &&
                       day.crops.map((crop, i) => (
-                        <button onClick={() => setSelectedCrop(crop.id!)}
+                        <button onClick={() => {
+                          if (selectedCrop === crop.id){
+                            setSelectedCrop(0)
+                          } else setSelectedCrop(crop.id!)}}
                           className={clsx(
                             " p-1 ",
                             crop.plantedDate === day.day && "bg-green-100",
