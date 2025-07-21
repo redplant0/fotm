@@ -10,7 +10,7 @@ function CalendarPage() {
   // calendar obj
   const [days, setDays] = useState<CalendarDay[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [season, setSeason] = useState<Season | "">("");
+  const [season, setSeason] = useState<Season | undefined>();
 
   // TODO: Create a better and less confusing way to delete a crop
   const [selectedCrop, setSelectedCrop] = useState(0)
@@ -18,6 +18,10 @@ function CalendarPage() {
   // Populate initial calendar on load
   useEffect(() => {
     setEmptyCalendar();
+
+    // set the current season from local storage
+
+    setSeason(localStorage.getItem('currentSeason') as Season || undefined)
   }, []);
 
   // Refresh the calendar if season's changed
@@ -79,6 +83,7 @@ function CalendarPage() {
       });
 
       setDays(newDays);
+      localStorage.setItem('currentSeason', season)
     }
   }, [season]);
 
@@ -90,7 +95,8 @@ function CalendarPage() {
           <select
             id="season"
             className="py-2"
-            onChange={(e) => setSeason(e.target.value as Season | "")}
+            onChange={(e) => setSeason(e.target.value as Season | undefined)}
+            value={season}
           >
             <option value="">Select Season</option>
             {["Spring", "Summer", "Fall"].map((season, i) => (

@@ -30,4 +30,13 @@ export type ReferenceCrop = {
     sell_price: number 
 }
 
-export type Season = 'Spring' | 'Summer' | 'Fall'
+export type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter'
+
+
+export type Character = {
+    name: string,
+    birthday: [season: Season, day: number] | null
+    likes: string[],
+    dislikes: string[],
+    schedule: string[],
+}

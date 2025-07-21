@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { getAllCropsNames } from "../data/crops";
 import { saveCrop } from "../lib/db";
+import type { Season } from "../types/app-types";
 
 export default function AddCropForm({
   season,
   hideForm,
   refreshCalendar: onFinish
 }: {
-  season: "Summer" | "Fall" | "Spring";
+  season: Season;
   hideForm: () => void,
   refreshCalendar: () => Promise<void>
 }) {

@@ -1,6 +1,8 @@
-import type { ReferenceCrop } from "../types/app-types";
+import type { ReferenceCrop, Season } from "../types/app-types";
 
-export const crops: ReferenceCrop[] = [
+
+
+const crops: ReferenceCrop[] = [
   {
     name: "Turnip",
     harvest_time: 4,
@@ -125,7 +127,7 @@ export const crops: ReferenceCrop[] = [
   },
 ];
 
-export const getAllCropsNames = (season?: "Summer" | "Spring" | "Fall") => {
+export const getAllCropsNames = (season?: Season) => {
   let filteredCrops = crops;
 
   if (season) {
@@ -139,3 +141,5 @@ export const getCropByName = (name: string) => {
   const crop = crops.find((c) => c.name === name)!;
   return crop;
 };
+
+export default crops

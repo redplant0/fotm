@@ -1,29 +1,19 @@
 import { useEffect, useState } from "react";
 import type { ReferenceCrop, Season } from "../types/app-types";
-
-import { crops } from "../data/crops";
+import { getAllCrops } from "../lib/repo";
 import clsx from "clsx";
 
 export default function CropsPage() {
-  const [stateCrops, setCrops] = useState<Record<Season, ReferenceCrop[]>>({
-    Spring: [],
-    Fall: [],
-    Summer: [],
-  });
+  const [stateCrops, setCrops] = useState<Map<Season, ReferenceCrop[]>>(new Map())
 
   // Get all crops
   useEffect(() => {
-    const newCrops: Record<Season, ReferenceCrop[]> = {
-      Spring: [],
-      Fall: [],
-      Summer: [],
-    };
+    const crops = new Map<Season, ReferenceCrop[]>([['Spring', []], ['Summer', []], ['Fall', []]])
 
-    crops.forEach((crop) => {
-      newCrops[crop.season].push(crop);
-    });
 
-    setCrops(newCrops);
+    getAllCrops().forEach((crop) => crops.get(crop.season)?.push(crop))
+
+    setCrops(crops);
   }, []);
 
   return (
@@ -42,7 +32,7 @@ export default function CropsPage() {
         {/* Contents */}
         <div className="flex flex-col gap-4 mt-4">
         {stateCrops &&
-          Object.entries(stateCrops).map(([key, value], i) => {
+          [...stateCrops.entries()].map(([key, value], i) => {
             return (
               <div key={i}>
                 <span>{key}</span>
