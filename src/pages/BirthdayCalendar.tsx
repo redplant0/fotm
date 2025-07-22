@@ -6,22 +6,32 @@ import BirthdayModal from "../components/BirthdaysModal";
 
 export default function BirthdayCalendarPage() {
   const [days, setDays] = useState<Map<number, Character[]>>(new Map());
-  const [season, setSeason] = useState<Season | undefined>()
+  const [season, setSeason] = useState<Season | undefined>();
   const [shown, setIsShown] = useState(false);
 
-  const [activeDay, setActiveDay] = useState(0);
+  const [activeBDay, setActiveBDay] = useState(0);
+
+  // Feat: Highlight day
+  const [currentDay, setCurrentDay] = useState(0);
 
   //   Initial run
 
-  useEffect(()=> {
-    if (!season){
-      setSeason(localStorage.getItem('birthdaySeason') as Season)
+  useEffect(() => {
+    if (!season) {
+      setSeason(localStorage.getItem("birthdaySeason") as Season);
     }
-  }, [])
 
+    // Feat: Hightlight day
+    setCurrentDay(Number(localStorage.getItem("currentDay") || 0));
+  }, []);
+    // Feat: Highlight day
+  useEffect(() => {
+    if (currentDay){
+      localStorage.setItem('currentDay', currentDay.toString())
+    }
+  }, [currentDay])
 
   useEffect(() => {
-
     const arr = Array.from(
       { length: 30 },
       (_, i) => [i + 1, []] as [number, Character[]]
@@ -39,20 +49,19 @@ export default function BirthdayCalendarPage() {
   }, [season]);
 
   // save active season change
-  useEffect(()=> {
-    if (season)
-    localStorage.setItem('birthdaySeason', season)
-  }, [season])
+  useEffect(() => {
+    if (season) localStorage.setItem("birthdaySeason", season);
+  }, [season]);
 
   return (
     <div className=" px-4 my-5">
       {/* Select */}
-      <div className="mb-2 ">
+      <div className="mb-4 ">
         <select
           id="season"
           className="py-2 focus-visible:outline-none"
           onChange={(e) => setSeason(e.target.value as Season)}
-          value={season || ''}
+          value={season || ""}
         >
           <option value="">Select Season</option>
           {["Spring", "Summer", "Fall", "Winter"].map((season, i) => (
@@ -71,27 +80,39 @@ export default function BirthdayCalendarPage() {
           return (
             <div
               onClick={() => {
-                if (events) {
-                  setActiveDay(day);
+                if (events.length !== 0) {
+                  setActiveBDay(day);
                   setIsShown(true);
                 }
               }}
               className={clsx(
-                "border-t border-l w-1/5 aspect-square text-xs flex flex-col gap-2 p-1 overflow-y-hidden",
+                "border-t border-l w-1/5 aspect-square text-xs flex flex-col gap-2 overflow-y-hidden",
                 isFifth && "border-r",
                 isLastRow && "border-b"
               )}
               key={i}
             >
-              <span>{day}</span>
+              <span
+                onClick={(e) => {e.stopPropagation();setCurrentDay(day)}}
+                className={clsx(
+                  "relative flex items-center justify-center w-6 h-6 select-none",
+                  day === currentDay &&
+                    "text-white before:content-[''] before:absolute before:w-6 before:h-6 before:bg-red-500 before:rounded-full before:-z-10"
+                )}
+              >
+                {day}
+              </span>
               {/* Birthdays */}
 
               {events && season && (
-                <div className="flex flex-wrap gap-1 overflow-scroll">
+                <div className="flex flex-wrap gap-1 overflow-scroll p-1">
                   {/* Birthday */}
                   {events.map((event, i) => (
                     // For now, it's just this. next time it will be an avatar
-                    <div className="border w-1/4 h-auto aspect-square flex items-center justify-center" key={`br-${i}`}>
+                    <div
+                      className="border w-1/4 h-auto aspect-square flex items-center justify-center"
+                      key={`br-${i}`}
+                    >
                       {event.name[0]}
                     </div>
                   ))}
@@ -102,11 +123,11 @@ export default function BirthdayCalendarPage() {
         })}
       </div>
 
-      <div className={shown && activeDay ? "block" : "hidden"}>
+      <div className={shown && activeBDay ? "block" : "hidden"}>
         {/* From the above, if activateDay is zero, this won't get shown anyway*/}
         <BirthdayModal
           setIsShown={setIsShown}
-          characters={days.get(activeDay)!}
+          characters={days.get(activeBDay)!}
         />
       </div>
     </div>

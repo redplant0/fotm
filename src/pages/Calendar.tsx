@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 
-import type { CalendarCrop, CalendarDay, Crop, Season } from "../types/app-types";
+import type {
+  CalendarCrop,
+  CalendarDay,
+  Crop,
+  Season,
+} from "../types/app-types";
 import AddCropForm from "../components/AddCropForm";
 import { deleteCropById, getAllCropsBySeason } from "../lib/db";
 import { convertDBCrop, createCalendarCropFromRegrowing } from "../lib/utils";
@@ -12,17 +17,30 @@ function CalendarPage() {
   const [showForm, setShowForm] = useState(false);
   const [season, setSeason] = useState<Season | undefined>();
 
+  // Feat: Highlight day
+  const [currentDay, setCurrentDay] = useState(0);
+
   // TODO: Create a better and less confusing way to delete a crop
-  const [selectedCrop, setSelectedCrop] = useState(0)
+  const [selectedCrop, setSelectedCrop] = useState(0);
 
   // Populate initial calendar on load
   useEffect(() => {
     setEmptyCalendar();
 
+    // Feat: Hightlight day
+    setCurrentDay(Number(localStorage.getItem('currentDay') || 0))
+
     // set the current season from local storage
 
-    setSeason(localStorage.getItem('currentSeason') as Season || undefined)
+    setSeason((localStorage.getItem("currentSeason") as Season) || undefined);
   }, []);
+
+  // Feat: Highlight day
+  useEffect(() => {
+    if (currentDay){
+      localStorage.setItem('currentDay', currentDay.toString())
+    }
+  }, [currentDay])
 
   // Refresh the calendar if season's changed
   useEffect(() => {
@@ -61,18 +79,19 @@ function CalendarPage() {
       const regrowingCrops: Crop[] = [];
 
       dbCrops.forEach((crop) => {
-        if (crop.regrowthTime){
-          regrowingCrops.push(crop)
+        if (crop.regrowthTime) {
+          regrowingCrops.push(crop);
         } else {
-          singleHarvestCrops.push(crop)
+          singleHarvestCrops.push(crop);
         }
-      })
+      });
 
-      const crops: CalendarCrop[] = []
+      const crops: CalendarCrop[] = [];
 
-      singleHarvestCrops.forEach((crop) => crops.push(convertDBCrop(crop)))
-      regrowingCrops.forEach((crop) => crops.push(...createCalendarCropFromRegrowing(crop)))
-
+      singleHarvestCrops.forEach((crop) => crops.push(convertDBCrop(crop)));
+      regrowingCrops.forEach((crop) =>
+        crops.push(...createCalendarCropFromRegrowing(crop))
+      );
 
       crops.forEach((crop) => {
         newDays.forEach((day) => {
@@ -83,9 +102,11 @@ function CalendarPage() {
       });
 
       setDays(newDays);
-      localStorage.setItem('currentSeason', season)
+      localStorage.setItem("currentSeason", season);
     }
   }, [season]);
+
+
 
   return (
     <>
@@ -122,20 +143,30 @@ function CalendarPage() {
                   )}
                   key={i}
                 >
-                  <span className="pt-1 pl-1">{day.day}</span>
+                  <span onClick={() => setCurrentDay(day.day)}
+                    className={clsx(
+                      "relative flex items-center justify-center w-6 h-6 select-none",
+                      day.day === currentDay &&
+                        "text-white before:content-[''] before:absolute before:w-6 before:h-6 before:bg-red-500 before:rounded-full before:-z-10"
+                    )}
+                  >
+                    {day.day}
+                  </span>
                   {/* crop */}
                   <div className="w-full flex flex-col overflow-y-scroll gap-1">
                     {day.crops &&
                       day.crops.map((crop, i) => (
-                        <button onClick={() => {
-                          if (selectedCrop === crop.id){
-                            setSelectedCrop(0)
-                          } else setSelectedCrop(crop.id!)}}
+                        <button
+                          onClick={() => {
+                            if (selectedCrop === crop.id) {
+                              setSelectedCrop(0);
+                            } else setSelectedCrop(crop.id!);
+                          }}
                           className={clsx(
                             " p-1 ",
                             crop.plantedDate === day.day && "bg-green-100",
                             crop.harvestDate === day.day && "bg-amber-100",
-                            selectedCrop === crop.id && '!bg-red-300'
+                            selectedCrop === crop.id && "!bg-red-300"
                           )}
                           key={i}
                         >
@@ -157,9 +188,14 @@ function CalendarPage() {
           Plant Crop
         </button>
 
-                {/*  Delete crop button */}
+        {/*  Delete crop button */}
         <button
-          onClick={() => deleteCropById(selectedCrop).then(()=> {refreshCalendar(); setSelectedCrop(0)})}
+          onClick={() =>
+            deleteCropById(selectedCrop).then(() => {
+              refreshCalendar();
+              setSelectedCrop(0);
+            })
+          }
           className="px-2 py-4 bg-red-600 text-white disabled:bg-gray-400"
           disabled={!selectedCrop}
         >

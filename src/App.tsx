@@ -4,6 +4,7 @@ import Layout from "./layout";
 import CalendarPage from "./pages/Calendar";
 import CropsPage from "./pages/Crops";
 import BirthdayCalendarPage from "./pages/BirthdayCalendar";
+import CharactersPage from "./pages/Characters";
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Route index element={<CalendarPage />} />
         <Route path="/crops" element={<CropsPage />} />
         <Route path="/birthdays" element={<BirthdayCalendarPage />} />
+        <Route path="/characters" element={<CharactersPage />} />
+
       </Route>
     </Routes>
   );
