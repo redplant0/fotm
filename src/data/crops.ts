@@ -46,7 +46,7 @@ const crops: ReferenceCrop[] = [
 
   {
     name: "Onion",
-    harvest_time: 8,
+    harvest_time: 7,
     regrowth_time: null,
     season: "Summer",
     seed_cost: 150,
@@ -63,7 +63,7 @@ const crops: ReferenceCrop[] = [
   {
     name: "Corn",
     harvest_time: 14,
-    regrowth_time: 4,
+    regrowth_time: 3,
     season: "Summer",
     seed_cost: 300,
     sell_price: 100,
@@ -71,7 +71,7 @@ const crops: ReferenceCrop[] = [
   {
     name: "Pineapple",
     harvest_time: 20,
-    regrowth_time: 6,
+    regrowth_time: 5,
     season: "Summer",
     seed_cost: 1000,
     sell_price: 500,
@@ -87,7 +87,7 @@ const crops: ReferenceCrop[] = [
 
   {
     name: "Carrot",
-    harvest_time: 8,
+    harvest_time: 7,
     regrowth_time: null,
     season: "Fall",
     seed_cost: 300,
@@ -103,15 +103,15 @@ const crops: ReferenceCrop[] = [
   },
   {
     name: "Sweet Potato",
-    harvest_time: 6,
-    regrowth_time: 3,
+    harvest_time: 5,
+    regrowth_time: 2,
     season: "Fall",
     seed_cost: 300,
     sell_price: 120,
   },
   {
     name: "Green Pepper",
-    harvest_time: 8,
+    harvest_time: 7,
     regrowth_time: 2,
     season: "Fall",
     seed_cost: 150,
@@ -119,7 +119,7 @@ const crops: ReferenceCrop[] = [
   },
   {
     name: "Spinach",
-    harvest_time: 6,
+    harvest_time: 5,
     regrowth_time: null,
     season: "Fall",
     seed_cost: 200,
