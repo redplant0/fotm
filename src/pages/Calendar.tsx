@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 
-import type {
-  CalendarCrop,
-  CalendarDay,
-  Crop,
-  Season,
-} from "../types/app-types";
-import AddCropForm from "../components/AddCropForm";
+import type { CalendarCrop, Crop, Season } from "../types/app-types";
+import AddCropFormModal from "../components/AddCropForm";
 import { deleteCropById, getAllCropsBySeason } from "../lib/db";
 import { convertDBCrop, createCalendarCropFromRegrowing } from "../lib/utils";
 
 function CalendarPage() {
   // calendar obj
-  const [days, setDays] = useState<CalendarDay[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowForm] = useState(false);
   const [season, setSeason] = useState<Season | undefined>();
+
+  // Update: Use Map for Calendar days for efficiency
+  // Future: I wonder if this can be combined with birthday events for a singular calendar
+  const [calendarDays, setCalendarDays] = useState<Map<number, CalendarCrop[]>>(
+    new Map<number, CalendarCrop[]>()
+  );
 
   // Feat: Highlight day
   const [currentDay, setCurrentDay] = useState(0);
@@ -28,7 +28,7 @@ function CalendarPage() {
     setEmptyCalendar();
 
     // Feat: Hightlight day
-    setCurrentDay(Number(localStorage.getItem('currentDay') || 0))
+    setCurrentDay(Number(localStorage.getItem("currentDay") || 0));
 
     // set the current season from local storage
 
@@ -37,10 +37,10 @@ function CalendarPage() {
 
   // Feat: Highlight day
   useEffect(() => {
-    if (currentDay){
-      localStorage.setItem('currentDay', currentDay.toString())
+    if (currentDay) {
+      localStorage.setItem("currentDay", currentDay.toString());
     }
-  }, [currentDay])
+  }, [currentDay]);
 
   // Refresh the calendar if season's changed
   useEffect(() => {
@@ -51,11 +51,11 @@ function CalendarPage() {
 
   // A handy function to empty the calendar
   const setEmptyCalendar = useCallback(() => {
-    const days: CalendarDay[] = Array.from({ length: 30 }, (_, i) => ({
-      day: i + 1,
-      crops: [],
-    }));
-    setDays(days);
+    const newDays = Array.from(
+      { length: 30 },
+      (_, i) => [i + 1, []] as [number, CalendarCrop[]]
+    );
+    setCalendarDays(new Map(newDays));
   }, []);
 
   // A handy function to refresh the calendar
@@ -67,10 +67,12 @@ function CalendarPage() {
     }
     console.log("Refreshing calendar");
 
-    const newDays: CalendarDay[] = Array.from({ length: 30 }, (_, i) => ({
-      day: i + 1,
-      crops: [],
-    }));
+    const newDays = new Map(
+      Array.from(
+        { length: 30 },
+        (_, i) => [i + 1, []] as [number, CalendarCrop[]]
+      )
+    );
     const dbCrops = await getAllCropsBySeason(season);
 
     if (dbCrops) {
@@ -94,19 +96,15 @@ function CalendarPage() {
       );
 
       crops.forEach((crop) => {
-        newDays.forEach((day) => {
-          if (day.day === crop.plantedDate || day.day == crop.harvestDate) {
-            day.crops?.push(crop);
-          }
-        });
+        // WARN: Ensure the harvest date are properly formatted. For example, 1-30
+        newDays.get(crop.harvestDate)?.push(crop);
+        newDays.get(crop.plantedDate)?.push(crop);
       });
 
-      setDays(newDays);
+      setCalendarDays(newDays);
       localStorage.setItem("currentSeason", season);
     }
   }, [season]);
-
-
 
   return (
     <>
@@ -130,10 +128,10 @@ function CalendarPage() {
 
         {/* Calendar */}
         <div className="flex flex-wrap">
-          {days &&
-            days.map((day, i) => {
+          {calendarDays &&
+            [...calendarDays.entries()].map(([day, crops], i) => {
               const isFifth = (i + 1) % 5 === 0;
-              const isLastRow = day.day >= 26;
+              const isLastRow = day >= 26;
               return (
                 <div
                   className={clsx(
@@ -143,19 +141,20 @@ function CalendarPage() {
                   )}
                   key={i}
                 >
-                  <span onClick={() => setCurrentDay(day.day)}
+                  <span
+                    onClick={() => setCurrentDay(day)}
                     className={clsx(
                       "relative flex items-center justify-center w-6 h-6 select-none",
-                      day.day === currentDay &&
+                      day === currentDay &&
                         "text-white before:content-[''] before:absolute before:w-6 before:h-6 before:bg-red-500 before:rounded-full before:-z-10"
                     )}
                   >
-                    {day.day}
+                    {day}
                   </span>
                   {/* crop */}
                   <div className="w-full flex flex-col overflow-y-scroll gap-1">
-                    {day.crops &&
-                      day.crops.map((crop, i) => (
+                    {crops &&
+                      crops.map((crop, i) => (
                         <button
                           onClick={() => {
                             if (selectedCrop === crop.id) {
@@ -164,8 +163,8 @@ function CalendarPage() {
                           }}
                           className={clsx(
                             " p-1 ",
-                            crop.plantedDate === day.day && "bg-green-100",
-                            crop.harvestDate === day.day && "bg-amber-100",
+                            crop.plantedDate === day && "bg-green-100",
+                            crop.harvestDate === day && "bg-amber-100",
                             selectedCrop === crop.id && "!bg-red-300"
                           )}
                           key={i}
@@ -203,13 +202,15 @@ function CalendarPage() {
         </button>
       </div>
 
-      <div className={showForm && season ? "block" : "hidden"}>
-        <AddCropForm
+
+      {/* TODO: Return this component to only showing null and refreshing current day because it contains expensive calculation, apparently */}
+        <AddCropFormModal
           season={season as Season}
           hideForm={() => setShowForm(false)}
           refreshCalendar={refreshCalendar}
+          currentDay={currentDay}
+          showModal={showModal && !!season}
         />
-      </div>
     </>
   );
 }

@@ -1,10 +1,5 @@
 
 
-export type CalendarDay = {
-    day: number,
-    crops: CalendarCrop[]
-}
-
 export type CalendarCrop = {
     id?: number,
     plantedDate: number, // single number

@@ -3,14 +3,18 @@ import { getAllCropsNames } from "../data/crops";
 import { saveCrop } from "../lib/db";
 import type { Season } from "../types/app-types";
 
-export default function AddCropForm({
+export default function AddCropFormModal({
   season,
   hideForm,
-  refreshCalendar: onFinish
+  refreshCalendar: onFinish,
+  currentDay,
+  showModal
 }: {
   season: Season;
+  currentDay?: number,
   hideForm: () => void,
-  refreshCalendar: () => Promise<void>
+  showModal: boolean,
+  refreshCalendar: () => Promise<void>,
 }) {
   const [crops, setCrops] = useState<string[]>([]);
 
@@ -20,6 +24,19 @@ export default function AddCropForm({
   useEffect(() => {
     setCrops(getAllCropsNames(season));
   }, [season]);
+
+
+  // Avoids necessary re computing of season by splitting it to this
+  useEffect(() => {
+    if (currentDay){
+      setPlantedDay(currentDay)
+    }
+  }, [currentDay])
+
+  // Only show null but keep this components computation
+  if (!showModal){
+    return null
+  }
 
   const plantCrop = async () => {
 
