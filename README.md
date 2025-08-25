@@ -5,7 +5,10 @@ A web app for **Harvest Moon: Friends of Mineral Town** and **Harvest Moon: Frie
 ## ✨ Features
 - 📅 Track crops planted and their harvest dates  
 - 🎂 View villagers' birthdays and gift preferences  
-- 📶 Works offline (PWA support)  
+- 📶 Works offline (PWA support)
+
+> ⚠️ **Note:** This app is currently optimized for **mobile viewing**. Desktop support is limited.
+
 
 ## 📦 Installation
 ```bash
